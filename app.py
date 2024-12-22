@@ -1,10 +1,8 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
-import tempfile
 
 # Título e introdução
 st.markdown("# NanoTecAnnaDalmoneki")
@@ -22,35 +20,26 @@ y = np.random.uniform(0, 10, num_particles)
 vx = np.random.uniform(-0.5, 0.5, num_particles)
 vy = np.random.uniform(-0.5, 0.5, num_particles)
 
-# Simulação de Movimento com Animação
+# Simulação de Movimento com Frames Estáticos
 st.subheader("Simulação de Movimento das Partículas")
 if st.sidebar.button("Iniciar Simulação"):
     st.write("Simulação em andamento...")
 
-    # Criar animação e salvar como GIF
-    fig, ax = plt.subplots()
-    scatter = ax.scatter(x, y, s=50, alpha=0.7, label="Partículas")
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 10)
-    ax.set_title("Movimento das Partículas")
-    ax.legend()
-
-    def update(frame):
-        global x, y
+    for step in range(steps):
+        # Atualizar posições
         x += vx
         y += vy
         x = np.clip(x, 0, 10)
         y = np.clip(y, 0, 10)
-        scatter.set_offsets(np.c_[x, y])
 
-    anim = FuncAnimation(fig, update, frames=steps, interval=100)
-
-    # Salvar animação temporariamente
-    temp_file = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
-    anim.save(temp_file.name, fps=10, extra_args=['-vcodec', 'libx264'])
-
-    # Exibir animação no Streamlit
-    st.video(temp_file.name)
+        # Criar o gráfico estático
+        fig, ax = plt.subplots()
+        ax.scatter(x, y, s=50, alpha=0.7, label="Partículas")
+        ax.set_xlim(0, 10)
+        ax.set_ylim(0, 10)
+        ax.set_title(f"Movimento das Partículas - Passo {step + 1}/{steps}")
+        ax.legend()
+        st.pyplot(fig)
 
 # Simulação com Clusters
 st.subheader("Agrupamento de Clusters")
