@@ -1,15 +1,17 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+from matplotlib.animation import FuncAnimation, PillowWriter
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
+import io
 
-# Configuração do Título
-st.title("NanoTecAnnaDalmoneki - Simulação de IA para Nanotecnologia")
-st.markdown("Explore movimentos de partículas, predições e agrupamentos usando inteligência artificial!")
+# Título e introdução
+st.markdown("# NanoTecAnnaDalmoneki")
+st.markdown("## Simulação de IA para Nanotecnologia")
+st.markdown("Explore movimentos de partículas, predições e agrupamentos usando IA!")
 
-# Configurações Iniciais
+# Configurações no painel lateral
 st.sidebar.header("Configurações")
 num_particles = st.sidebar.slider("Número de Partículas", 10, 100, 50)
 steps = st.sidebar.slider("Número de Passos", 10, 500, 100)
@@ -22,21 +24,10 @@ vy = np.random.uniform(-0.5, 0.5, num_particles)
 
 # Simulação de Movimento com Animação
 st.subheader("Simulação de Movimento das Partículas")
-
 if st.sidebar.button("Iniciar Simulação"):
     st.write("Simulação em andamento...")
 
-    # Função de atualização para a animação
-    def update(frame):
-        global x, y
-        x += vx
-        y += vy
-        x = np.clip(x, 0, 10)
-        y = np.clip(y, 0, 10)
-        scatter.set_offsets(np.c_[x, y])
-        return scatter,
-
-    # Criar o gráfico
+    # Criar animação e salvar como GIF
     fig, ax = plt.subplots()
     scatter = ax.scatter(x, y, s=50, alpha=0.7, label="Partículas")
     ax.set_xlim(0, 10)
@@ -44,15 +35,23 @@ if st.sidebar.button("Iniciar Simulação"):
     ax.set_title("Movimento das Partículas")
     ax.legend()
 
-    # Criar animação
-    anim = FuncAnimation(fig, update, frames=steps, interval=100, blit=True)
+    def update(frame):
+        global x, y
+        x += vx
+        y += vy
+        x = np.clip(x, 0, 10)
+        y = np.clip(y, 0, 10)
+        scatter.set_offsets(np.c_[x, y])
 
-    # Exibir animação no Streamlit
-    st.pyplot(fig)
+    anim = FuncAnimation(fig, update, frames=steps, interval=100)
+    buf = io.BytesIO()
+    anim.save(buf, format="gif", writer=PillowWriter(fps=10))
+    buf.seek(0)
+    st.image(buf, format="gif")
 
 # Simulação com Clusters
+st.subheader("Agrupamento de Clusters")
 if st.sidebar.button("Agrupar em Clusters"):
-    st.subheader("Agrupamento de Clusters")
     # Atualizar posições finais
     x += vx * steps
     y += vy * steps
