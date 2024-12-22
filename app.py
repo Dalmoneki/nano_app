@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
 
@@ -19,30 +20,34 @@ y = np.random.uniform(0, 10, num_particles)
 vx = np.random.uniform(-0.5, 0.5, num_particles)
 vy = np.random.uniform(-0.5, 0.5, num_particles)
 
-# Predição com Machine Learning
-if st.sidebar.button("Prever Posição Média Final"):
-    st.subheader("Predição com Machine Learning")
-    # Simular posições finais para gerar dados
-    simulated_steps = np.random.randint(50, 500, size=100).reshape(-1, 1)
-    simulated_positions = simulated_steps * 0.5 + np.random.uniform(0, 2, size=(100, 1))
-    
-    # Treinar o modelo
-    model = LinearRegression()
-    model.fit(simulated_steps, simulated_positions)
+# Simulação de Movimento com Animação
+st.subheader("Simulação de Movimento das Partículas")
 
-    # Prever com base no número de passos configurado
-    predicted_position = model.predict([[steps]])[0][0]
-    st.write(f"**Posição média final prevista:** {predicted_position:.2f}")
+if st.sidebar.button("Iniciar Simulação"):
+    st.write("Simulação em andamento...")
 
-# Simulação com Gráfico Interativo
-st.subheader("Gráfico Interativo")
-if st.sidebar.button("Exibir Gráfico de Movimento"):
+    # Função de atualização para a animação
+    def update(frame):
+        global x, y
+        x += vx
+        y += vy
+        x = np.clip(x, 0, 10)
+        y = np.clip(y, 0, 10)
+        scatter.set_offsets(np.c_[x, y])
+        return scatter,
+
+    # Criar o gráfico
     fig, ax = plt.subplots()
-    ax.scatter(x, y, s=50, alpha=0.7, label="Partículas")
-    ax.set_title("Movimento das Partículas")
+    scatter = ax.scatter(x, y, s=50, alpha=0.7, label="Partículas")
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 10)
+    ax.set_title("Movimento das Partículas")
     ax.legend()
+
+    # Criar animação
+    anim = FuncAnimation(fig, update, frames=steps, interval=100, blit=True)
+
+    # Exibir animação no Streamlit
     st.pyplot(fig)
 
 # Simulação com Clusters
