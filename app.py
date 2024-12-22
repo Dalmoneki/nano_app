@@ -1,12 +1,12 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import io
+from sklearn.cluster import KMeans
+from sklearn.linear_model import LinearRegression
 
 # Configuração do Título
 st.title("Simulação de IA para Nanotecnologia - Dalmoneki; Anna")
-st.markdown("Explore movimentos de partículas e interações utilizando inteligência artificial!")
+st.markdown("Explore movimentos de partículas, predições e agrupamentos usando inteligência artificial!")
 
 # Configurações Iniciais
 st.sidebar.header("Configurações")
@@ -19,53 +19,27 @@ y = np.random.uniform(0, 10, num_particles)
 vx = np.random.uniform(-0.5, 0.5, num_particles)
 vy = np.random.uniform(-0.5, 0.5, num_particles)
 
-# Matriz para armazenar trajetórias
-trajectories_x = np.zeros((steps, num_particles))
-trajectories_y = np.zeros((steps, num_particles))
+# Predição com Machine Learning
+if st.sidebar.button("Prever Posição Média Final"):
+    # Simular posições finais para gerar dados
+    simulated_steps = np.random.randint(50, 500, size=100).reshape(-1, 1)
+    simulated_positions = simulated_steps * 0.5 + np.random.uniform(0, 2, size=(100, 1))
+    
+    # Treinar o modelo
+    model = LinearRegression()
+    model.fit(simulated_steps, simulated_positions)
 
-# Botões de Controle
-if st.sidebar.button("Iniciar Simulação"):
-    st.write("Simulação iniciada!")
+    # Prever com base no número de passos configurado
+    predicted_position = model.predict([[steps]])[0][0]
+    st.write(f"**Posição média final prevista:** {predicted_position:.2f}")
 
-    # Criar gráfico animado
-    fig, ax = plt.subplots()
-    scatter = ax.scatter(x, y, s=50, alpha=0.7)
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 10)
+# Simulação com Clusters
+if st.sidebar.button("Agrupar em Clusters"):
+    # Atualizar posições finais
+    x += vx * steps
+    y += vy * steps
+    x = np.clip(x, 0, 10)
+    y = np.clip(y, 0, 10)
 
-    # Função para atualizar as partículas
-    def update(frame):
-        global x, y, trajectories_x, trajectories_y, vx, vy
-        x += vx
-        y += vy
-        x = np.clip(x, 0, 10)
-        y = np.clip(y, 0, 10)
-        scatter.set_offsets(np.c_[x, y])
-        # Registrar trajetórias
-        trajectories_x[frame, :] = x
-        trajectories_y[frame, :] = y
-
-    # Animação
-    anim = FuncAnimation(fig, update, frames=steps, interval=100)
-    st.pyplot(fig)
-
-# Botão para Exportar Gráfico
-if st.sidebar.button("Salvar Gráfico"):
-    fig, ax = plt.subplots()
-    for i in range(num_particles):
-        ax.plot(trajectories_x[:, i], trajectories_y[:, i], alpha=0.5)  # Desenhar trajetórias
-    ax.scatter(x, y, s=50, alpha=0.7, label="Posições Finais")
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 10)
-    ax.set_title("Trajetórias das Partículas")
-    ax.legend()
-    # Salvar gráfico em buffer
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png")
-    buf.seek(0)
-    st.download_button(
-        label="Baixar Gráfico",
-        data=buf,
-        file_name="trajetorias_particulas.png",
-        mime="image/png"
-    )
+    # Agrupar com K-Means
+    positions = np.column_stack((x, y))
