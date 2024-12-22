@@ -1,15 +1,15 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation, PillowWriter
+from matplotlib.animation import FuncAnimation
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
-import io
+import tempfile
 
 # Título e introdução
 st.markdown("# NanoTecAnnaDalmoneki")
 st.markdown("## Simulação de IA para Nanotecnologia")
-st.markdown("Explore movimentos de partículas, predições e agrupamentos usando IA!")
+st.markdown("Explore movimentos de partículas, predições e agrupamentos usando inteligência artificial!")
 
 # Configurações no painel lateral
 st.sidebar.header("Configurações")
@@ -44,10 +44,13 @@ if st.sidebar.button("Iniciar Simulação"):
         scatter.set_offsets(np.c_[x, y])
 
     anim = FuncAnimation(fig, update, frames=steps, interval=100)
-    buf = io.BytesIO()
-    anim.save(buf, format="gif", writer=PillowWriter(fps=10))
-    buf.seek(0)
-    st.image(buf, format="gif")
+
+    # Salvar animação temporariamente
+    temp_file = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+    anim.save(temp_file.name, fps=10, extra_args=['-vcodec', 'libx264'])
+
+    # Exibir animação no Streamlit
+    st.video(temp_file.name)
 
 # Simulação com Clusters
 st.subheader("Agrupamento de Clusters")
