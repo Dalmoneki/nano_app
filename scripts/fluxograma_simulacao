@@ -1,0 +1,13 @@
+digraph {
+	Entrada [label="Entrada
+- Número de Partículas
+- Configurações Iniciais"]
+	Processamento [label="Processamento
+- Movimento das Partículas
+- Treinamento com IA"]
+	"Saída" [label="Saída
+- Gráficos
+- Dados Exportados"]
+	Entrada -> Processamento
+	Processamento -> "Saída"
+}
