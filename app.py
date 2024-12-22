@@ -5,7 +5,7 @@ from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
 
 # Configuração do Título
-st.title("Simulação de IA para Nanotecnologia - Dalmoneki; Anna")
+st.title("NanoTecAnnaDalmoneki - Simulação de IA para Nanotecnologia")
 st.markdown("Explore movimentos de partículas, predições e agrupamentos usando inteligência artificial!")
 
 # Configurações Iniciais
