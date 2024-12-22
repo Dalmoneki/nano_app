@@ -21,6 +21,7 @@ vy = np.random.uniform(-0.5, 0.5, num_particles)
 
 # Predição com Machine Learning
 if st.sidebar.button("Prever Posição Média Final"):
+    st.subheader("Predição com Machine Learning")
     # Simular posições finais para gerar dados
     simulated_steps = np.random.randint(50, 500, size=100).reshape(-1, 1)
     simulated_positions = simulated_steps * 0.5 + np.random.uniform(0, 2, size=(100, 1))
@@ -33,8 +34,20 @@ if st.sidebar.button("Prever Posição Média Final"):
     predicted_position = model.predict([[steps]])[0][0]
     st.write(f"**Posição média final prevista:** {predicted_position:.2f}")
 
+# Simulação com Gráfico Interativo
+st.subheader("Gráfico Interativo")
+if st.sidebar.button("Exibir Gráfico de Movimento"):
+    fig, ax = plt.subplots()
+    ax.scatter(x, y, s=50, alpha=0.7, label="Partículas")
+    ax.set_title("Movimento das Partículas")
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 10)
+    ax.legend()
+    st.pyplot(fig)
+
 # Simulação com Clusters
 if st.sidebar.button("Agrupar em Clusters"):
+    st.subheader("Agrupamento de Clusters")
     # Atualizar posições finais
     x += vx * steps
     y += vy * steps
